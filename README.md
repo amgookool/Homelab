@@ -75,7 +75,7 @@ The following settings should be used for TCP port forwarding rule:
 - External Port: _port of the dynamically assigned UDP rule_
 - Allow PCP Port Proposals: No
 
-**Note for UDP:** The ```Allow PCP Port Proposals``` would set its own public port (Not what we specified) and setting Allow PCP Port Proposals to No would cause the forwarding to fail. Take not of this port number. We will need it for the client configuration.
+**Note for UDP:** The ```Allow PCP Port Proposals``` would set its own public port (Not what we specified) and setting Allow PCP Port Proposals to No would cause the forwarding to fail. Take note of this port number. We will need it for the client configuration.
 
 Note: If the Wireguard server shuts down, the port number will change and you will need to modify the TCP rule to match the new port number. Additionally, the client configuration file will need to be updated with the new port number.
 
