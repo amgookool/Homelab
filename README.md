@@ -11,6 +11,10 @@ This was an article that guided my decision.(<https://www.top10vpn.com/guides/wi
 
 ## Setup
 
+Wireguard docker repository: [linuxserver/wireguard docker hub](https://hub.docker.com/r/linuxserver/wireguard)
+
+Wireguard docker documentation: [linuxserver/wireguard docs](https://github.com/linuxserver/docker-wireguard)
+
 Both WireGuard and OpenVPN server requires a linux operating system. Since NUC machine was considered to run the VPN server, it is suitable to use a containerized instance of the wireguard application. This docker compose file should be run in a ```WSL``` linux distro instance. This is because wireguard requires kernel modules and network-related admin tasks.
 
 ```docker-compose
@@ -75,7 +79,7 @@ The following settings should be used for TCP port forwarding rule:
 - External Port: _port of the dynamically assigned UDP rule_
 - Allow PCP Port Proposals: No
 
-**Note for UDP:** The ```Allow PCP Port Proposals``` would set its own public port (Not what we specified) and setting Allow PCP Port Proposals to No would cause the forwarding to fail. Take note of this port number. We will need it for the client configuration.
+**Note for UDP:** The ```Allow PCP Port Proposals``` would set its own public port (Not what we specified) and setting Allow PCP Port Proposals to No would cause the forwarding to fail. It takes roughly 6 hours for the port to be reassigned. You can wait until the port is reassigned or you can take note of the proposed port to test the connection by modifying the client configuration file.
 
 Note: If the Wireguard server shuts down, the port number will change and you will need to modify the TCP rule to match the new port number. Additionally, the client configuration file will need to be updated with the new port number.
 
@@ -91,6 +95,10 @@ docker cp wireguard:/config/peer<integer> .
 
 The above command will copy the client config folder to your current working directory.
 
-If you are using a Digicel router, you will need to change the port number in the client config endpoint to match the port number of the dynamically assigned UDP rule.
-
 Next, using the [wireguard client application](https://www.wireguard.com/install/), import the client configuration file and connect to the VPN server.
+
+## Split Tunneling
+
+The VPN server will route all traffic through the VPN server. This is not ideal as it will slow down the internet speed. To avoid this, we can use split tunneling. This will allow the VPN server to route only the traffic that is destined for the private network. The rest of the traffic will be routed through the ISP.
+
+To enable split tunneling, the following steps should be taken:
