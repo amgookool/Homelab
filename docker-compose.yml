@@ -23,6 +23,42 @@ services:
       - ALLOWEDIPS=0.0.0.0/0
       - SERVERURL=auto
       - SERVERPORT=51820 
-      - PEERS=10
+      - PEERS=8
       - PEERDNS=auto 
-      - INTERNAL_SUBNET=192.168.80.0 
+      - INTERNAL_SUBNET=192.168.80.0,192.168.100.0
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+      - "80:80/tcp"
+    environment:
+      TZ: 'America/La_Paz'
+      WEBPASSWORD: 'kooltron'
+    # Volumes store your data between container upgrades
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
+    restart: unless-stopped
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    network_mode: host #optional
+    environment:
+      - PUID=1000 #optional
+      - PGID=1000 #optional
+      - TZ=America/La_Paz #optional
+      - SUBDOMAINS=koolpi.duckdns.org
+      - TOKEN=1d04bff3-d0da-4c49-b72b-ed1e8504b7b8
+      - UPDATE_IP=ipv4 #optional
+      - LOG_FILE=false #optional
+    volumes:
+      - /opt/duckdns/config:/config #optional
+    restart: unless-stopped
+
