@@ -22,8 +22,8 @@ services:
       - LOG_CONFS=true
       - ALLOWEDIPS=0.0.0.0/0
       - SERVERPORT=51820 
-      - PEERS=8
-      - PEERDNS=192.168.80.1,182.168.100.1,8.8.8.8
+      - PEERS=3
+      - PEERDNS=192.168.80.1,192.168.100.1,192.168.100.201,8.8.8.8
       - PERSISTENTKEEPALIVE_PEERS=all
       - SERVERURL=koolpi.duckdns.org  
       - INTERNAL_SUBNET=192.168.80.0
