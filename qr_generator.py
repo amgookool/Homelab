@@ -35,7 +35,7 @@ def generate_qr_code(conf_file_path: str, qr_code_path: str):
         conf_content = file.read()
 
     qr_code = make(conf_content)
-    qr_code.save(qr_code_path, scale=3, border=4,
+    qr_code.save(qr_code_path, scale=10, border=12,
                  )
     return qr_code
 
@@ -104,7 +104,7 @@ img_file = os.path.join(args.img_path, f"{conf_filename}-qr.png")
 qr = generate_qr_code(conf_file, img_file)
 
 
-qr.terminal(border=10, compact=True)
+qr.terminal(border=8, compact=True)
 
 if should_save_img is False:
     print(should_save_img)
