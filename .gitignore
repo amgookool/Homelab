@@ -2,3 +2,7 @@ peer*/
 venv/
 etc-pihole
 etc-dnsmasq.d/
+minio/
+postgres-data/
+redis-data/
+
