@@ -1,32 +1,5 @@
 version: '3.8'
 services:
-  wireguard:
-    image: linuxserver/wireguard:latest
-    container_name: wireguard
-    restart: unless-stopped
-    ports:
-      - 51820:51820/udp
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv4.ip_forward=1
-    volumes:
-      - /opt/wireguard-server/config:/config
-      - /lib/modules:/lib/modules
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/La_Paz
-      - LOG_CONFS=true
-      - ALLOWEDIPS=0.0.0.0/0
-      - SERVERPORT=51820 
-      - PEERS=3
-      - PEERDNS=192.168.80.1,192.168.100.1,192.168.100.201,8.8.8.8
-      - PERSISTENTKEEPALIVE_PEERS=all
-      - SERVERURL=koolpi.duckdns.org  
-      - INTERNAL_SUBNET=192.168.80.0
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
@@ -47,19 +20,96 @@ services:
     cap_add:
       - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     restart: unless-stopped
-  duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
-    container_name: duckdns
-    network_mode: host #optional
-    environment:
-      - PUID=1000 #optional
-      - PGID=1000 #optional
-      - TZ=America/La_Paz #optional
-      - SUBDOMAINS=koolpi.duckdns.org
-      - TOKEN=1d04bff3-d0da-4c49-b72b-ed1e8504b7b8
-      - UPDATE_IP=ipv4 #optional
-      - LOG_FILE=false #optional
-    volumes:
-      - /opt/duckdns/config:/config #optional
+  postgres:
+    container_name: postgres
+    image: postgres:alpine3.18
     restart: unless-stopped
-
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres1234
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U", "postgres"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  redis:
+    image: redis:alpine3.18
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=redis1234
+      - REDIS_REPLICATION_MODE=master
+    command: >
+      --requirepass redis1234
+    volumes:
+      - ./redis-data:/data
+      - ./redis-data/redis.conf:/usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9002:9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=minio1234
+    volumes:
+      - ./minio/data:/data
+    command: server /data --console-adress ":9001"
+  # wireguard:
+    # image: linuxserver/wireguard:latest
+    # container_name: wireguard
+    # restart: unless-stopped
+    # ports:
+      # - 51820:51820/udp
+    # sysctls:
+      # - net.ipv4.conf.all.src_valid_mark=1
+      # - net.ipv4.ip_forward=1
+    # volumes:
+      # - /opt/wireguard-server/config:/config
+      # - /lib/modules:/lib/modules
+    # cap_add:
+      # - NET_ADMIN
+      # - SYS_MODULE
+    # environment:
+      # - PUID=1000
+      # - PGID=1000
+      # - TZ=America/La_Paz
+      # - LOG_CONFS=true
+      # - ALLOWEDIPS=0.0.0.0/0
+      # - SERVERPORT=51820 
+      # - PEERS=3
+      # - PEERDNS=192.168.80.1,192.168.100.1,192.168.100.201,8.8.8.8
+      # - PERSISTENTKEEPALIVE_PEERS=all
+      # - SERVERURL=koolpi.duckdns.org  
+      # - INTERNAL_SUBNET=192.168.80.0
+  # duckdns:
+    # image: lscr.io/linuxserver/duckdns:latest
+    # container_name: duckdns
+    # network_mode: host #optional
+    # environment:
+      # - PUID=1000 #optional
+      # - PGID=1000 #optional
+      # - TZ=America/La_Paz #optional
+      # - SUBDOMAINS=koolpi.duckdns.org
+      # - TOKEN=1d04bff3-d0da-4c49-b72b-ed1e8504b7b8
+      # - UPDATE_IP=ipv4 #optional
+      # - LOG_FILE=false #optional
+    # volumes:
+      # - /opt/duckdns/config:/config #optional
+    # restart: unless-stopped 
