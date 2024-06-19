@@ -70,7 +70,7 @@ services:
       - MINIO_ROOT_PASSWORD=minio1234
     volumes:
       - ./minio/data:/data
-    command: server /data --console-adress ":9001"
+    command: server /data --console-address ":9001"
   # wireguard:
     # image: linuxserver/wireguard:latest
     # container_name: wireguard
