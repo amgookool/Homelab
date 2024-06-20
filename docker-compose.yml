@@ -70,6 +70,18 @@ services:
     volumes:
       - ./minio/data:/data
     command: server /data --console-address ":9001"
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/site:/srv
+      - ./caddy/caddy-data:/data
+      - ./caddy/caddy_config:/config
   # wireguard:
     # image: linuxserver/wireguard:latest
     # container_name: wireguard
@@ -112,3 +124,8 @@ services:
     # volumes:
       # - /opt/duckdns/config:/config #optional
     # restart: unless-stopped 
+
+volumes:
+  caddy:
+  postgres-data:
+  redis-data:
