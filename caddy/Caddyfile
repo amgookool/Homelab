@@ -1,0 +1,8 @@
+{
+    email email@valid.com
+}
+
+localhost {
+    file_server browse
+}
+
